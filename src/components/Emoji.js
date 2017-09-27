@@ -12,6 +12,7 @@ import {
   PropTypes,
 } from 'prop-types';
 
+
 const happy = ['👋', '👌', '👍', '👏', '👐'];
 const sad = ['😢', '😓', '😒', '😳', '😭'];
 const INITIAL_Y = 5;

@@ -3,9 +3,13 @@ import React, {
 } from 'react';
 import {
   StyleSheet,
-  View,
+  View,TouchableOpacity,
   Dimensions,
 } from 'react-native';
+import RNGameCenter from 'react-native-game-center';
+const achievementIdentifier="first_ten"
+const leaderboardIdentifier="high_score"
+
 
 import Ball from './components/Ball';
 import Hoop from './components/Hoop';
@@ -15,7 +19,9 @@ import Emoji from './components/Emoji';
 import Score from './components/Score';
 
 import Vector from './utils/Vector';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 
+RNGameCenter.init({leaderboardIdentifier})
 // physical variables
 const gravity = 0.6; // gravity
 const radius = 48; // ball radius
@@ -46,7 +52,7 @@ class Basketball extends Component {
 
   constructor(props) {
     super(props);
-
+  RNGameCenter.init({leaderboardIdentifier})
     this.interval = null;
 
     // initialize ball states
@@ -61,6 +67,7 @@ class Basketball extends Component {
       scored: null,
       score: 0,
     };
+    this.showLeaderboard=this.showLeaderboard.bind(this)
   }
 
   componentDidMount() {
@@ -219,6 +226,8 @@ class Basketball extends Component {
         if (nextState.x + radius > NET_LEFT_BORDER_X && nextState.x + radius < NET_RIGHT_BORDER_X) {
           nextState.scored = true;
           nextState.score += 1;
+          RNGameCenter.submitLeaderboardScore({score:nextState.score,leaderboardIdentifier})
+
         } else {
           nextState.scored = false;
         }
@@ -323,10 +332,17 @@ class Basketball extends Component {
     }
     return null;
   }
-
+  showLeaderboard(){
+    try{
+    RNGameCenter.showLeaderboard({leaderboardIdentifier})
+  } catch (e) {console.log("ERRORRRR RNGameCenter.showLeaderboard",e);}
+  }
   render() {
     return (
-      <View style={styles.container}>
+      <View style={s.container}>
+        <TouchableOpacity onPress={this.showLeaderboard} style={[s.topButton]}>
+                <Icon name={"circle-outline"} size={25} color="rgba(0,0,0,0.5)"/>
+        </TouchableOpacity>
         <Score y={FLOOR_HEIGHT * 3} score={this.state.score} scored={this.state.scored} />
         <Hoop y={HOOP_Y} />
         {this.renderNet(this.state.lifecycle === LC_STARTING)}
@@ -347,10 +363,12 @@ class Basketball extends Component {
   }
 }
 
-const styles = StyleSheet.create({
+const s = StyleSheet.create({
   container: {
     flex: 1,
   },
+  topButton:{position:"absolute",top:25,right:10,flex:1,width:35,height:35,alignItems:"center",justifyContent:"center",backgroundColor:"transparent"},
+
 });
 
 export default Basketball;
